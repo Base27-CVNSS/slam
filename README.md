@@ -60,9 +60,10 @@ node --check app.js
 | [DeepVO-SLAM](https://github.com/aak204/deepvo-slam) | Run Python/Streamlit/Docker separately; import georeferenced trajectories into this UI later | Requires deep-learning weights, KITTI data and Python dependencies; Streamlit is not GitHub Pages |
 | [AV-Map-Creation-Workflow](https://github.com/zubxxr/AV-Map-Creation-Workflow) | Create OSM-derived 3D mesh + point-cloud PCD + Lanelet2 for Autoware/AWSIM | External Docker and mapping tools, not a browser module |
 | [Cam2Sim](https://github.com/ast-fortiss-tum/cam2sim) | Generate CARLA scenarios from driving recordings | Requires CARLA and GPU stack for GS workflow |
+| [OpenTwinMap](https://github.com/jmscslgroup/OpenTwinMap) | Investigate OSM + geospatial assets for CARLA environment construction | Verified public repo, GPL-3.0; integration not implemented here |
 | [FlexMap Fusion](https://github.com/TUMFTM/FlexMap_Fusion) | ROS2 map alignment/conflation and GNSS-assisted georeferencing | Requires ROS2 / RViz / map inputs |
 
-The suggested `alexrichardson/opentwinmap` repository path returned 404 at review time (12 October 2026); confirm its new upstream location and licensing before planning an integration. O-VIP was not verified as public executable source and is not bundled.
+The suggested `alexrichardson/opentwinmap` repository path returned 404 at review time (12 October 2026). A matching public project was identified as [jmscslgroup/OpenTwinMap](https://github.com/jmscslgroup/OpenTwinMap), licensed GPL-3.0; verify compatibility before incorporating or distributing its code. O-VIP was not verified as public executable source and is not bundled.
 
 ### Next engineering milestones
 
