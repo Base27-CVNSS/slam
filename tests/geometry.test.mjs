@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {toLocal,toGeo,project,unproject,segmentClosest,buildRoadIndex,nearestRoad,samplePolyline,demoGeometry,chooseOsmRoute,makeRng,rmse,routeLength} from '../math.mjs';
+test('geographic local round-trip',()=>{const c={lon:106.7,lat:10.77},p=toLocal(106.701,10.772,c),g=toGeo(p,c);assert.ok(Math.abs(g[0]-106.701)<1e-9);assert.ok(Math.abs(g[1]-10.772)<1e-9)});
+test('WebMercator round-trip at southern Vietnam',()=>{const p=project(105.78,10.04,16),g=unproject(p.x,p.y,16);assert.ok(Math.abs(g.lon-105.78)<1e-9);assert.ok(Math.abs(g.lat-10.04)<1e-9)});
+test('nearest projection on road line',()=>{const r=segmentClosest({x:3,y:5},{x:0,y:0},{x:10,y:0});assert.equal(r.point.x,3);assert.equal(r.point.y,0);assert.equal(r.distance,5)});
+test('nearest road index and radius cutoff',()=>{const idx=buildRoadIndex([[{x:-40,y:0},{x:40,y:0}]]);assert.ok(nearestRoad({x:0,y:5},idx,10));assert.equal(nearestRoad({x:0,y:50},idx,10),null)});
+test('sampling and synthetic roads yield looped path',()=>{const g=demoGeometry();assert.ok(g.route.length>200);assert.ok(routeLength(g.route)>1000);assert.ok(chooseOsmRoute(g.roads)?.length>100)});
+test('random seed reproducible and finite RMSE',()=>{const a=makeRng(11),b=makeRng(11);assert.equal(a(),b());assert.equal(rmse([3,4]),Math.sqrt(12.5));assert.equal(rmse([]),0)});
+test('degenerate polyline handled',()=>{assert.deepEqual(samplePolyline([{x:0,y:0},{x:0,y:0}]),[{x:0,y:0}])});
