@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07111d" />
+  <meta name="description" content="Vietflex SLAM Lab: bản đồ OSM, visual/IMU odometry giả lập, LiDAR 2D và hiệu chỉnh quỹ đạo theo mạng đường." />
+  <title>Vietflex SLAM Lab | SLAM × OSM</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 23L12 6l8 20 7-17" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>VIETFLEX <span>SLAM</span></strong><small>GEOSPATIAL SIMULATION LAB · v0.1</small></div></div>
+      <div class="topmid"><span class="dot good"></span><span id="systemBadge">SIMULATION READY</span><span class="sep"></span><span>2D GIS × ROBOTICS × OSM</span></div>
+      <div class="top-actions"><a href="https://github.com/Base27-CVNSS/slam" target="_blank" rel="noopener noreferrer" class="ghost-link">GitHub <span>↗</span></a><button id="resetBtn" class="button muted" type="button">↺ Đặt lại</button><button id="runBtn" class="button primary" type="button">▶ Chạy mô phỏng</button></div>
+    </header>
+    <main class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-heading"><div class="eyebrow">CONTROL CENTER</div><h1>Mô phỏng định vị<br /><em>SLAM + OSM</em></h1><p>Quan sát sai lệch tích lũy và hiệu chỉnh quỹ đạo theo prior bản đồ.</p></div>
+        <section class="panel"><div class="panel-title"><span>01 / CẤU HÌNH</span><span class="micro-tag">LIVE</span></div>
+          <label class="field-label" for="locationSelect">Khu vực thử nghiệm</label>
+          <select id="locationSelect"><option value="hcm">TP. Hồ Chí Minh · Bến Thành</option><option value="hanoi">Hà Nội · Hoàn Kiếm</option><option value="danang">Đà Nẵng · Hải Châu</option><option value="cantho">Cần Thơ · Ninh Kiều</option></select>
+          <label class="field-label" for="sensorSelect">Cảm biến / odometry giả lập</label>
+          <select id="sensorSelect"><option value="fusion">Visual + IMU fusion</option><option value="lidar">LiDAR 2D odometry</option><option value="visual">Visual odometry</option></select>
+          <div class="setting"><div class="setting-copy"><label for="noiseRange">Nhiễu cảm biến</label><small>Độ nhiễu / drift (không phải dữ liệu đo)</small></div><b id="noiseValue">35%</b></div><input id="noiseRange" type="range" min="5" max="100" value="35" step="5" />
+          <div class="setting"><div class="setting-copy"><label for="speedRange">Tốc độ phát mô phỏng</label></div><b id="speedValue">2×</b></div><input id="speedRange" type="range" min="1" max="5" value="2" step="1" />
+          <label class="switch-row"><span><strong>OSM map matching</strong><small>Chiếu ước lượng lên đoạn đường gần nhất</small></span><input id="matchToggle" type="checkbox" checked /><span class="switch"></span></label>
+          <label class="switch-row"><span><strong>Hiển thị chùm tia LiDAR</strong><small>Landmark cảm biến được tạo giả lập</small></span><input id="lidarToggle" type="checkbox" checked /><span class="switch"></span></label>
+          <label class="switch-row"><span><strong>Nền bản đồ OpenStreetMap</strong><small>Cần Internet; tắt để dùng nền lưới</small></span><input id="tilesToggle" type="checkbox" checked /><span class="switch"></span></label>
+        </section>
+        <section class="panel osm-box"><div class="panel-title"><span>02 / DỮ LIỆU ĐƯỜNG</span><span id="roadType" class="micro-tag amber">DEMO</span></div><p>Bắt đầu với tuyến tổng hợp. Nạp dữ liệu đường OSM thật để tạo quỹ đạo dọc mạng đường và map matching.</p><button id="loadOsmBtn" class="button outline wide" type="button">⌁ Nạp mạng đường OSM tại đây</button><label class="upload-btn" for="fileInput">↑ Nhập GeoJSON hoặc OSM XML</label><input id="fileInput" type="file" accept=".geojson,.json,.osm,.xml,application/json,text/xml" hidden /><div class="hint" id="osmStatus" role="status">Chế độ mặc định: mạng đường giả lập có tọa độ.</div></section>
+        <section class="panel compact"><div class="panel-title"><span>03 / XUẤT KẾT QUẢ</span></div><div class="export-row"><button id="exportGeoBtn" class="button muted" type="button">GeoJSON ↗</button><button id="exportCsvBtn" class="button muted" type="button">CSV ↗</button></div></section>
+        <p class="sidebar-foot">Dữ liệu demo · Chỉ số mô phỏng, không đại diện kết quả SLAM thực · Long Ngo 2026 · MIT</p>
+      </aside>
+      <section class="mainview">
+        <div class="map-top"><div><span class="eyebrow">LIVE GEOSPATIAL VIEW</span><h2>Không gian định vị <span>2D</span></h2></div><div class="map-chip"><span class="dot good"></span><span id="stepStatus">CHƯA CHẠY</span></div></div>
+        <div class="map-stage" id="mapStage"><canvas id="mapCanvas" aria-label="Bản đồ OSM và mô phỏng quỹ đạo robot" role="img"></canvas><div class="map-overlay-tag"><span class="scan-icon">◎</span><strong>SLAM ENGINE</strong><small id="mapMode">SIMULATED ROAD GRAPH</small></div><div class="map-zoom"><button id="zoomIn" type="button" aria-label="Phóng to">+</button><button id="zoomOut" type="button" aria-label="Thu nhỏ">−</button><button id="recenter" type="button" title="Về tâm mô phỏng" aria-label="Đưa bản đồ về tâm">⌖</button></div><div class="map-legend"><div><i class="legend-line true"></i> Ground truth</div><div><i class="legend-line raw"></i> Odometry drift</div><div><i class="legend-line fused"></i> Map-constrained</div><div><i class="legend-point"></i> LiDAR giả lập</div></div><div class="map-attribution">Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · ODbL · <span id="sourceLabel">Demo road graph</span></div><div class="map-instruction">Kéo để di chuyển · Cuộn để phóng to</div></div>
+        <div class="chart-block"><div class="chart-heading"><div><span class="eyebrow">TRAJECTORY ANALYTICS</span><h3>Sai số định vị theo bước thời gian</h3></div><span class="small-copy">Khoảng cách Euclid với ground truth · mét</span></div><canvas id="chartCanvas" aria-label="Biểu đồ sai số của quỹ đạo trước và sau hiệu chỉnh" role="img"></canvas><div class="chart-legend"><span><i class="dotline raw"></i> Odometry</span><span><i class="dotline fused"></i> Map-constrained</span></div></div>
+      </section>
+      <aside class="insights"><div class="insights-top"><span class="eyebrow">LIVE TELEMETRY</span><span class="pulse-text"><span class="dot good"></span> 10 Hz (logical)</span></div><div class="metrics"><div class="metric-card"><span>QUỸ ĐẠO DI CHUYỂN</span><div><b id="distanceMetric">0.0</b><small>m</small></div><p>Quãng đường ground truth</p></div><div class="metric-card"><span>RMSE · ODOMETRY</span><div><b id="rawMetric">0.00</b><small>m</small></div><p>Sai số trước hiệu chỉnh</p></div><div class="metric-card accent"><span>RMSE · MAP MATCH</span><div><b id="fusedMetric">0.00</b><small>m</small></div><p>Sai số quỹ đạo có ràng buộc</p></div><div class="metric-card"><span>MỨC CẢI THIỆN RMSE</span><div><b id="gainMetric">—</b><small id="gainUnit">%</small></div><p>Không đảm bảo luôn cải thiện</p></div></div>
+        <section class="info-panel"><div class="panel-title"><span>DATA & ENGINE</span><span class="micro-tag">SIM</span></div><div class="info-line"><span>Bước xử lý</span><strong id="frameMetric">0 / 0</strong></div><div class="info-line"><span>Đoạn đường</span><strong id="roadsMetric">0</strong></div><div class="info-line"><span>Map constraints</span><strong id="matchMetric">0</strong></div><div class="info-line"><span>Loop closure</span><strong id="loopMetric">0</strong></div><div class="info-line"><span>Tọa độ tâm</span><strong id="coordMetric">—</strong></div></section>
+        <section class="info-panel"><div class="panel-title"><span>PIPELINE MÔ PHỎNG</span></div><div class="pipeline"><div><i>1</i><span><b>Road graph / OSM</b><small>Nạp mạng đường và dựng lộ trình</small></span></div><div><i>2</i><span><b>Synthetic odometry</b><small>Mô phỏng chuyển động + nhiễu</small></span></div><div><i>3</i><span><b>Map constraint</b><small>Gần nhất trên phân đoạn đường</small></span></div><div><i>4</i><span><b>Evaluation & export</b><small>RMSE, CSV, GeoJSON</small></span></div></div></section>
+        <div class="truth-note"><strong>⚠ Phạm vi kỹ thuật</strong><p>Đây là mô phỏng 2D cho giáo dục và thử nghiệm GIS. Không chạy CNN/LSTM, GTSAM, LiDAR scan matching hay ROS2 thật. OSM là prior bản đồ, không phải cảm biến SLAM.</p></div>
+      </aside>
+    </main>
+    <footer class="footer"><span>VIETFLEXMAP GEOSPATIAL RESEARCH</span><span>SLAM × OpenStreetMap × Robotics</span><a href="https://github.com/Base27-CVNSS/slam" target="_blank" rel="noopener noreferrer">Source code ↗</a></footer>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
